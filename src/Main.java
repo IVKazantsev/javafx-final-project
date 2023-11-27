@@ -47,7 +47,12 @@ public class Main extends Application {
         titleContainer.setHgap(5);
 
         // Список дел
-        Text todos = new Text(getTodos());
+        StringBuilder todosText = new StringBuilder();
+        for (Todo todo:
+             getTodos()) {
+            todosText.append(todo.saveTodo()).append("\n");
+        }
+        Text todos = new Text(todosText.toString());
 
         todos.setLayoutX(80);   // установка положения надписи по оси X
         todos.setLayoutY(titleContainer.getLayoutY() + titleContainer.getHeight() + 80);    // установка положения надписи по оси Y
@@ -129,7 +134,7 @@ public class Main extends Application {
 
         try {
             FileWriter writer = new FileWriter(todosFile, true);
-            writer.write(todo.getTitle() + "\n" + todo.isCompleted() + "\n");
+            writer.write(todo.saveTodo() + "\n");
 
             writer.flush();
         } catch (IOException e) {
@@ -137,14 +142,34 @@ public class Main extends Application {
         }
     }
 
-    public String getTodos() throws IOException {
+    public Todo[] getTodos() throws IOException {
         File todosFile = getTodosFile();
 
-        if(todosFile.length() == 0) {
-            return "Nothing todo here";
+        int fileLength = 0; // счетчик строк
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(todosFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                fileLength++;
+            }
+        } catch (IOException e) {
+            System.err.println("Ошибка при чтении файла: " + e.getMessage());
         }
 
-        List<String> lines = Files.readAllLines(Paths.get(todosFile.toURI()), Charset.defaultCharset());
-        return String.join(System.lineSeparator(), lines);
+        Todo[] todos = new Todo[fileLength];
+        if(todos.length == 0) {
+            return todos;
+        }
+
+        int counter = 0;
+        BufferedReader reader = new BufferedReader(new FileReader(todosFile));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            todos[counter] = Todo.loadTodo(line);
+            counter++;
+        }
+        reader.close();
+
+        return todos;
     }
 }
