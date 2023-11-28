@@ -1,6 +1,4 @@
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
@@ -15,7 +13,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.CheckBox;
 
-import java.awt.*;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -113,41 +110,38 @@ public class Main extends Application {
             }
             todos.getChildren().add(todoCkeckBox);
 
-            todoCkeckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-                @Override
-                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                    if (newValue) {
-                        try {
-                            Todo[] tempTodosArray = getTodos();
-                            tempTodosArray[tempTodosArray.length - 1].done();
+            todoCkeckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue) {
+                    try {
+                        Todo[] tempTodosArray = getTodos();
+                        tempTodosArray[tempTodosArray.length - 1].done();
 
-                            File todosFile = getTodosFile();
-                            FileWriter writer = new FileWriter(todosFile, false);
-                            for (Todo todo:
-                                    tempTodosArray) {
-                                writer.write(todo.saveTodo() + "\n");
-                                writer.flush();
-                            }
-                            writer.close();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+                        File todosFile = getTodosFile();
+                        FileWriter writer = new FileWriter(todosFile, false);
+                        for (Todo todo1 :
+                                tempTodosArray) {
+                            writer.write(todo1.saveTodo() + "\n");
+                            writer.flush();
                         }
-                    } else {
-                        try {
-                            Todo[] tempTodosArray = getTodos();
-                            tempTodosArray[tempTodosArray.length - 1].undone();
+                        writer.close();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    try {
+                        Todo[] tempTodosArray = getTodos();
+                        tempTodosArray[tempTodosArray.length - 1].undone();
 
-                            File todosFile = getTodosFile();
-                            FileWriter writer = new FileWriter(todosFile, false);
-                            for (Todo todo:
-                                    tempTodosArray) {
-                                writer.write(todo.saveTodo() + "\n");
-                                writer.flush();
-                            }
-                            writer.close();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+                        File todosFile = getTodosFile();
+                        FileWriter writer = new FileWriter(todosFile, false);
+                        for (Todo todo1 :
+                                tempTodosArray) {
+                            writer.write(todo1.saveTodo() + "\n");
+                            writer.flush();
                         }
+                        writer.close();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             });
@@ -169,41 +163,38 @@ public class Main extends Application {
             Node nodeOut = todos.getChildren().get(i);
             if (nodeOut instanceof CheckBox) {
                 int finalI = i;
-                ((CheckBox) nodeOut).selectedProperty().addListener(new ChangeListener<Boolean>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                        if (newValue) {
-                            try {
-                                Todo[] tempTodosArray = getTodos();
-                                tempTodosArray[finalI].done();
+                ((CheckBox) nodeOut).selectedProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue) {
+                        try {
+                            Todo[] tempTodosArray = getTodos();
+                            tempTodosArray[finalI].done();
 
-                                File todosFile = getTodosFile();
-                                FileWriter writer = new FileWriter(todosFile, false);
-                                for (Todo todo:
-                                     tempTodosArray) {
-                                    writer.write(todo.saveTodo() + "\n");
-                                    writer.flush();
-                                }
-                                writer.close();
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
+                            File todosFile = getTodosFile();
+                            FileWriter writer = new FileWriter(todosFile, false);
+                            for (Todo todo:
+                                 tempTodosArray) {
+                                writer.write(todo.saveTodo() + "\n");
+                                writer.flush();
                             }
-                        } else {
-                            try {
-                                Todo[] tempTodosArray = getTodos();
-                                tempTodosArray[finalI].undone();
+                            writer.close();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        try {
+                            Todo[] tempTodosArray = getTodos();
+                            tempTodosArray[finalI].undone();
 
-                                File todosFile = getTodosFile();
-                                FileWriter writer = new FileWriter(todosFile, false);
-                                for (Todo todo:
-                                        tempTodosArray) {
-                                    writer.write(todo.saveTodo() + "\n");
-                                    writer.flush();
-                                }
-                                writer.close();
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
+                            File todosFile = getTodosFile();
+                            FileWriter writer = new FileWriter(todosFile, false);
+                            for (Todo todo:
+                                    tempTodosArray) {
+                                writer.write(todo.saveTodo() + "\n");
+                                writer.flush();
                             }
+                            writer.close();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
                         }
                     }
                 });
