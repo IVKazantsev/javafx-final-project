@@ -13,6 +13,9 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.CheckBox;
+
+import java.awt.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -34,6 +37,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException { // Stage - пользовательский интерфейс
 
+        Group root = new Group(); // Корневой узел
         // Картинка заголовка
         Image icon = new Image("file:img/icon.png", 50, 50, true, true);
         ImageView iconView = new ImageView(icon);
@@ -42,20 +46,26 @@ public class Main extends Application {
         Text title = new Text("Todoist");
 
         FlowPane titleContainer = new FlowPane(iconView, title);
-        titleContainer.setLayoutX(80);    // установка положения надписи по оси X
-        titleContainer.setLayoutY(80);    // установка положения надписи по оси Y
-        titleContainer.setHgap(5);
+
+        root.getChildren().add(titleContainer);
 
         // Список дел
-        StringBuilder todosText = new StringBuilder();
-        for (Todo todo:
-             getTodos()) {
-            todosText.append(todo.saveTodo()).append("\n");
-        }
-        Text todos = new Text(todosText.toString());
+        Group todos = new Group();
+        Todo[] todosArray = getTodos();
 
-        todos.setLayoutX(80);   // установка положения надписи по оси X
-        todos.setLayoutY(titleContainer.getLayoutY() + titleContainer.getHeight() + 80);    // установка положения надписи по оси Y
+        Text nothingTodo = new Text("Nothing to do here");
+        if(todosArray.length == 0) {
+            todos.getChildren().add(nothingTodo);
+        }
+
+        for (int i = 0; i < todosArray.length; i++)
+        {
+            CheckBox todo = new CheckBox(todosArray[i].getTitle());
+            todo.setSelected(todosArray[i].isCompleted());
+            todos.getChildren().add(todo);
+            todo.setLayoutY(todos.getLayoutY() + i * 20);
+        }
+        root.getChildren().add(todos);
 
         // Ввод нового дела
         TextField input = new TextField("What to do?");
@@ -63,20 +73,13 @@ public class Main extends Application {
         // Кнопка добавления
         Button saveButton = new Button("Save");
 
-        saveButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                Todo todo = new Todo(input.getText());
-
-                addTodo(todo);
-            }
-        });
+//        int todosCount = getTodos().length; // Подсчет количества тудушек для корректного отображения отступов
 
         FlowPane newTodoForm = new FlowPane(input, saveButton);
-        newTodoForm.setLayoutX(80);   // установка положения надписи по оси X
-        newTodoForm.setLayoutY(todos.getLayoutY() + todos.computeAreaInScreen() + 20);    // установка положения надписи по оси Y
-        System.out.println(todos.computeAreaInScreen());
-        newTodoForm.setHgap(5);
+
+        System.out.println(getTodos().length);
+
+        root.getChildren().add(newTodoForm);
 
         // Ввод нового дела
         Label copyright = new Label("© 2023 Todoist Kazancev Korol");
@@ -91,15 +94,57 @@ public class Main extends Application {
                 navButton2,
                 navButton3,
                 navButton4);
+
+        titleContainer.setLayoutX(80);    // установка положения надписи по оси X
+        titleContainer.setLayoutY(80);    // установка положения надписи по оси Y
+        titleContainer.setHgap(5);
+
+        todos.setLayoutX(80);   // установка положения надписи по оси X
+        todos.setLayoutY(titleContainer.getLayoutY() + titleContainer.getHeight() + 80);    // установка положения надписи по оси Y
+
+        newTodoForm.setLayoutX(80);   // установка положения надписи по оси X
+        newTodoForm.setLayoutY(todos.getLayoutY() + getTodos().length * 20 + 20);    // установка положения надписи по оси Y
+        newTodoForm.setHgap(5);
+
         footer.setLayoutX(80);
-        footer.setLayoutY(newTodoForm.getLayoutY() + newTodoForm.getHeight() + 30);
+        footer.setLayoutY(newTodoForm.getLayoutY() + 30);
         footer.setHgap(5);
 
-        Group root = new Group(titleContainer,
-                todos,
-                newTodoForm,
-                footer
-        ); // Корневой узел
+        root.getChildren().add(footer);
+
+        saveButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                Todo todo = new Todo(input.getText());
+                CheckBox todoCkeckBox = new CheckBox(todo.getTitle());
+                todoCkeckBox.setSelected(todo.isCompleted());
+
+                try {
+                    if(getTodos().length != 0) {
+                        todoCkeckBox.setLayoutY(todos.getChildren().get(getTodos().length - 1).getLayoutY() + 20);
+                    } else {
+                        todos.getChildren().clear();
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                addTodo(todo);
+                todos.getChildren().add(todoCkeckBox);
+
+                try {
+                    if(getTodos().length != 0) {
+                        newTodoForm.setLayoutY(todos.getLayoutY() + getTodos().length * 20 + 20);
+                    } else {
+                        newTodoForm.setLayoutY(todos.getLayoutY() + 20 + 20);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                newTodoForm.setHgap(5);
+                footer.setLayoutY(newTodoForm.getLayoutY() + 30);
+                footer.setHgap(5);
+            }
+        });
 
         // Все визуальные элементы помещаем в контейнер, который хранится в сцене
         Scene scene = new Scene(root, Color.rgb(220, 220, 220));
@@ -144,7 +189,6 @@ public class Main extends Application {
 
     public Todo[] getTodos() throws IOException {
         File todosFile = getTodosFile();
-
         int fileLength = 0; // счетчик строк
 
         try (BufferedReader reader = new BufferedReader(new FileReader(todosFile))) {
