@@ -1,8 +1,5 @@
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.SubScene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.scene.Group;
@@ -15,16 +12,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.CheckBox;
 
-import java.awt.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-import java.nio.charset.Charset;
-
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.Flow;
 
 public class Main extends Application {
 
@@ -54,12 +44,11 @@ public class Main extends Application {
         Todo[] todosArray = getTodos();
 
         Text nothingTodo = new Text("Nothing to do here");
-        if(todosArray.length == 0) {
+        if (todosArray.length == 0) {
             todos.getChildren().add(nothingTodo);
         }
 
-        for (int i = 0; i < todosArray.length; i++)
-        {
+        for (int i = 0; i < todosArray.length; i++) {
             CheckBox todo = new CheckBox(todosArray[i].getTitle());
             todo.setSelected(todosArray[i].isCompleted());
             todos.getChildren().add(todo);
@@ -112,38 +101,40 @@ public class Main extends Application {
 
         root.getChildren().add(footer);
 
-        saveButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                Todo todo = new Todo(input.getText());
-                CheckBox todoCkeckBox = new CheckBox(todo.getTitle());
-                todoCkeckBox.setSelected(todo.isCompleted());
+        saveButton.setOnAction(actionEvent -> {
+            Todo todo = new Todo(input.getText());
+            CheckBox todoCkeckBox = new CheckBox(todo.getTitle());
+            todoCkeckBox.setSelected(todo.isCompleted());
 
-                try {
-                    if(getTodos().length != 0) {
-                        todoCkeckBox.setLayoutY(todos.getChildren().get(getTodos().length - 1).getLayoutY() + 20);
-                    } else {
-                        todos.getChildren().clear();
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+            try {
+                if (getTodos().length != 0) {
+                    todoCkeckBox.setLayoutY(todos.getChildren().get(getTodos().length - 1).getLayoutY() + 20);
+                } else {
+                    todos.getChildren().clear();
                 }
-                addTodo(todo);
-                todos.getChildren().add(todoCkeckBox);
-
-                try {
-                    if(getTodos().length != 0) {
-                        newTodoForm.setLayoutY(todos.getLayoutY() + getTodos().length * 20 + 20);
-                    } else {
-                        newTodoForm.setLayoutY(todos.getLayoutY() + 20 + 20);
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                newTodoForm.setHgap(5);
-                footer.setLayoutY(newTodoForm.getLayoutY() + 30);
-                footer.setHgap(5);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
+
+            try {
+                addTodo(todo);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            todos.getChildren().add(todoCkeckBox);
+
+            try {
+                if (getTodos().length != 0) {
+                    newTodoForm.setLayoutY(todos.getLayoutY() + getTodos().length * 20 + 20);
+                } else {
+                    newTodoForm.setLayoutY(todos.getLayoutY() + 20 + 20);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            newTodoForm.setHgap(5);
+            footer.setLayoutY(newTodoForm.getLayoutY() + 30);
+            footer.setHgap(5);
         });
 
         // Все визуальные элементы помещаем в контейнер, который хранится в сцене
@@ -174,14 +165,14 @@ public class Main extends Application {
         return todos;
     }
 
-    public void addTodo(Todo todo) {
+    public void addTodo(Todo todo) throws IOException {
         File todosFile = getTodosFile();
-
         try {
             FileWriter writer = new FileWriter(todosFile, true);
             writer.write(todo.saveTodo() + "\n");
 
             writer.flush();
+            writer.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -192,8 +183,7 @@ public class Main extends Application {
         int fileLength = 0; // счетчик строк
 
         try (BufferedReader reader = new BufferedReader(new FileReader(todosFile))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
+            while (reader.readLine() != null) {
                 fileLength++;
             }
         } catch (IOException e) {
@@ -201,7 +191,7 @@ public class Main extends Application {
         }
 
         Todo[] todos = new Todo[fileLength];
-        if(todos.length == 0) {
+        if (todos.length == 0) {
             return todos;
         }
 
