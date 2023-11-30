@@ -1,4 +1,5 @@
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
@@ -52,7 +53,8 @@ public class Main extends Application {
         }
 /////////////// Форма добавления дела ///////////////
 
-        TextField input = new TextField("What to do?");
+        TextField input = new TextField();
+        input.setPromptText("What to do?");
 
         Button saveButton = new Button("Save");
 
@@ -65,11 +67,13 @@ public class Main extends Application {
         Button navButton3 = new Button("Today");
         Button navButton4 = new Button("Reporting");
 
-        FlowPane footer = new FlowPane(copyright,
+        FlowPane menu = new FlowPane(
                 navButton1,
                 navButton2,
                 navButton3,
                 navButton4);
+        FlowPane footer = new FlowPane(menu, copyright);
+
 /////////////// Корневой узел ///////////////
         Group root = new Group(titleContainer,
                 todos,
@@ -84,78 +88,85 @@ public class Main extends Application {
 
         newTodoForm.setLayoutY(todos.getLayoutY() + getTodos().length * 20 + 20);
         newTodoForm.setHgap(5);
-
+        menu.setLayoutY(newTodoForm.getLayoutY() + 30);
+        menu.setHgap(5);
         footer.setLayoutY(newTodoForm.getLayoutY() + 30);
         footer.setHgap(5);
+        footer.setVgap(10);
+
 /////////////// Нажатие на кнопку Save ///////////////
         saveButton.setOnAction(actionEvent -> {
-            Todo todo = new Todo(input.getText());
-            CheckBox todoCkeckBox = new CheckBox(todo.getTitle());
-            todoCkeckBox.setSelected(todo.isCompleted());
+            if(!input.getText().trim().isEmpty()) {
+                Todo todo = new Todo(input.getText());
+                input.clear();
+                input.setPromptText("What to do?");
+                CheckBox todoCheckBox = new CheckBox(todo.getTitle());
+                todoCheckBox.setSelected(todo.isCompleted());
 
-            try {
-                if (getTodos().length != 0) {
-                    todoCkeckBox.setLayoutY(todos.getChildren().get(getTodos().length - 1).getLayoutY() + 20);
-                } else {
-                    todos.getChildren().clear();
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            try {
-                addTodo(todo);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            todos.getChildren().add(todoCkeckBox);
-
-            todoCkeckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue) {
-                    try {
-                        Todo[] tempTodosArray = getTodos();
-                        tempTodosArray[tempTodosArray.length - 1].done();
-
-                        File todosFile = getTodosFile();
-                        FileWriter writer = new FileWriter(todosFile, false);
-                        for (Todo todo1 :
-                                tempTodosArray) {
-                            writer.write(todo1.saveTodo() + "\n");
-                            writer.flush();
-                        }
-                        writer.close();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                try {
+                    if (getTodos().length != 0) {
+                        todoCheckBox.setLayoutY(todos.getChildren().get(getTodos().length - 1).getLayoutY() + 20);
+                    } else {
+                        todos.getChildren().clear();
                     }
-                } else {
-                    try {
-                        Todo[] tempTodosArray = getTodos();
-                        tempTodosArray[tempTodosArray.length - 1].undone();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
 
-                        File todosFile = getTodosFile();
-                        FileWriter writer = new FileWriter(todosFile, false);
-                        for (Todo todo1 :
-                                tempTodosArray) {
-                            writer.write(todo1.saveTodo() + "\n");
-                            writer.flush();
+                try {
+                    addTodo(todo);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                todos.getChildren().add(todoCheckBox);
+
+                todoCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue) {
+                        try {
+                            Todo[] tempTodosArray = getTodos();
+                            tempTodosArray[tempTodosArray.length - 1].done();
+
+                            File todosFile = getTodosFile();
+                            FileWriter writer = new FileWriter(todosFile, false);
+                            for (Todo todo1 :
+                                    tempTodosArray) {
+                                writer.write(todo1.saveTodo() + "\n");
+                                writer.flush();
+                            }
+                            writer.close();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
                         }
-                        writer.close();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
+                    } else {
+                        try {
+                            Todo[] tempTodosArray = getTodos();
+                            tempTodosArray[tempTodosArray.length - 1].undone();
 
-            try {
-                if (getTodos().length != 0) {
-                    newTodoForm.setLayoutY(todos.getLayoutY() + getTodos().length * 20 + 20);
-                } else {
-                    newTodoForm.setLayoutY(todos.getLayoutY() + 40);
+                            File todosFile = getTodosFile();
+                            FileWriter writer = new FileWriter(todosFile, false);
+                            for (Todo todo1 :
+                                    tempTodosArray) {
+                                writer.write(todo1.saveTodo() + "\n");
+                                writer.flush();
+                            }
+                            writer.close();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+
+                try {
+                    if (getTodos().length != 0) {
+                        newTodoForm.setLayoutY(todos.getLayoutY() + getTodos().length * 20 + 20);
+                    } else {
+                        newTodoForm.setLayoutY(todos.getLayoutY() + 40);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                footer.setLayoutY(newTodoForm.getLayoutY() + 30);
             }
-            footer.setLayoutY(newTodoForm.getLayoutY() + 30);
         });
 
 /////////////// Изменение галочки в чекбоксе ///////////////
@@ -204,11 +215,11 @@ public class Main extends Application {
 /////////////// Настройка окна ///////////////
         // Все визуальные элементы помещаем в контейнер, который хранится в сцене
         Scene scene = new Scene(root, Color.rgb(220, 220, 220));
-
         stage.setScene(scene);
         stage.setTitle("Todoist");
         stage.setWidth(700);
         stage.setHeight(700);
+
         stage.show();
     }
 
