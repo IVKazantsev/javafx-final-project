@@ -76,8 +76,8 @@ public class Main extends Application {
                 todayTodosButton,
                 reportingPageButton);
 
-        FlowPane footer = new FlowPane(copyright,
-                menu);
+        FlowPane footer = new FlowPane(menu,
+                copyright);
 
 /////////////// Корневой узел ///////////////
 
