@@ -1,10 +1,20 @@
-ука::false
-аку::false
-57::false
-75::false
-ew::false
-wer::false
-ert::false
-rew::false
-tre::false
-ter::false
+What to do?::false
+What to do?::false
+What to do?::true
+What to do?::false
+What to do?::false
+What to do?::false
+What to do?::false
+What to do?::true
+What to do?::true
+Drink water::false
+What to do?::false
+What to do?::false
+What to do?::false
+What to do?::false
+fef::false
+fwfewf::false
+gwegffew::false
+brgd::false
+::false
+hbdbf::false
