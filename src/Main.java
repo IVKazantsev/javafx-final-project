@@ -1,7 +1,6 @@
 import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.scene.Group;
@@ -11,12 +10,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.CheckBox;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class Main extends Application {
     Stage window;
@@ -33,6 +29,8 @@ public class Main extends Application {
 
         window = primaryStage;
 
+        Repository repository = new Repository();
+
 /////////////// Заголовок ///////////////
 
         Image icon = new Image("file:img/icon.png", 50, 50, true, true);
@@ -45,7 +43,7 @@ public class Main extends Application {
 /////////////// Список дел ///////////////
 
         Group todos = new Group();
-        Todo[] todosArray = getTodos();
+        Todo[] todosArray = repository.getTodos(null);
 
         Text nothingTodo = new Text("Nothing to do here");
         if (todosArray.length == 0) {
@@ -94,7 +92,7 @@ public class Main extends Application {
 
         todos.setLayoutY(titleContainer.getLayoutY() + 80);
 
-        newTodoButton.setLayoutY(todos.getLayoutY() + getTodos().length * 20 + 20);
+        newTodoButton.setLayoutY(todos.getLayoutY() + repository.getTodos(null).length * 20 + 20);
 
         menu.setLayoutY(newTodoButton.getLayoutY() + 30);
         menu.setHgap(5);
@@ -112,8 +110,8 @@ public class Main extends Application {
                 todoCkeckBox.setSelected(todo.isCompleted());
 
                 try {
-                    if (getTodos().length != 0) {
-                        todoCkeckBox.setLayoutY(todos.getChildren().get(getTodos().length - 1).getLayoutY() + 20);
+                    if (repository.getTodos(null).length != 0) {
+                        todoCkeckBox.setLayoutY(todos.getChildren().get(repository.getTodos(null).length - 1).getLayoutY() + 20);
                     } else {
                         todos.getChildren().clear();
                     }
@@ -121,43 +119,23 @@ public class Main extends Application {
                     throw new RuntimeException(e);
                 }
 
-                try {
-                    addTodo(todo);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                repository.addTodo(todo);
                 todos.getChildren().add(todoCkeckBox);
 
                 todoCkeckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue) {
                         try {
-                            Todo[] tempTodosArray = getTodos();
+                            Todo[] tempTodosArray = repository.getTodos(null);
                             tempTodosArray[tempTodosArray.length - 1].done();
-
-                            File todosFile = getTodosFile();
-                            FileWriter writer = new FileWriter(todosFile, false);
-                            for (Todo todo1 :
-                                    tempTodosArray) {
-                                writer.write(todo1.saveTodo() + "\n");
-                                writer.flush();
-                            }
-                            writer.close();
+                            repository.updateTodo(tempTodosArray[tempTodosArray.length - 1]);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
                     } else {
                         try {
-                            Todo[] tempTodosArray = getTodos();
+                            Todo[] tempTodosArray = repository.getTodos(null);
                             tempTodosArray[tempTodosArray.length - 1].undone();
-
-                            File todosFile = getTodosFile();
-                            FileWriter writer = new FileWriter(todosFile, false);
-                            for (Todo todo1 :
-                                    tempTodosArray) {
-                                writer.write(todo1.saveTodo() + "\n");
-                                writer.flush();
-                            }
-                            writer.close();
+                            repository.updateTodo(tempTodosArray[tempTodosArray.length - 1]);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
@@ -165,8 +143,8 @@ public class Main extends Application {
                 });
 
                 try {
-                    if (getTodos().length != 0) {
-                        newTodoButton.setLayoutY(todos.getLayoutY() + getTodos().length * 20 + 20);
+                    if (repository.getTodos(null).length != 0) {
+                        newTodoButton.setLayoutY(todos.getLayoutY() + repository.getTodos(null).length * 20 + 20);
                     } else {
                         newTodoButton.setLayoutY(todos.getLayoutY() + 40);
                     }
@@ -186,33 +164,17 @@ public class Main extends Application {
                 ((CheckBox) nodeOut).selectedProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue) {
                         try {
-                            Todo[] tempTodosArray = getTodos();
+                            Todo[] tempTodosArray = repository.getTodos(null);
                             tempTodosArray[finalI].done();
-
-                            File todosFile = getTodosFile();
-                            FileWriter writer = new FileWriter(todosFile, false);
-                            for (Todo todo :
-                                    tempTodosArray) {
-                                writer.write(todo.saveTodo() + "\n");
-                                writer.flush();
-                            }
-                            writer.close();
+                            repository.updateTodo(tempTodosArray[finalI]);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
                     } else {
                         try {
-                            Todo[] tempTodosArray = getTodos();
+                            Todo[] tempTodosArray = repository.getTodos(null);
                             tempTodosArray[finalI].undone();
-
-                            File todosFile = getTodosFile();
-                            FileWriter writer = new FileWriter(todosFile, false);
-                            for (Todo todo :
-                                    tempTodosArray) {
-                                writer.write(todo.saveTodo() + "\n");
-                                writer.flush();
-                            }
-                            writer.close();
+                            repository.updateTodo(tempTodosArray[finalI]);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
@@ -264,62 +226,5 @@ public class Main extends Application {
         window.setWidth(700);
         window.setHeight(700);
         window.show();
-    }
-
-    public File getTodosFile() {
-        Date today = new Date();
-        File todos = new File("./data/" + new SimpleDateFormat("yyyy-MM-dd").format(today) + ".txt");
-
-        try {
-            if (todos.createNewFile()) {
-                System.out.println("Created new file with todos");
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return todos;
-    }
-
-    public void addTodo(Todo todo) throws IOException {
-        File todosFile = getTodosFile();
-        try {
-            FileWriter writer = new FileWriter(todosFile, true);
-            writer.write(todo.saveTodo() + "\n");
-
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public Todo[] getTodos() throws IOException {
-        File todosFile = getTodosFile();
-        int fileLength = 0; // счетчик строк
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(todosFile))) {
-            while (reader.readLine() != null) {
-                fileLength++;
-            }
-        } catch (IOException e) {
-            System.err.println("Ошибка при чтении файла: " + e.getMessage());
-        }
-
-        Todo[] todos = new Todo[fileLength];
-        if (todos.length == 0) {
-            return todos;
-        }
-
-        int counter = 0;
-        BufferedReader reader = new BufferedReader(new FileReader(todosFile));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            todos[counter] = Todo.loadTodo(line);
-            counter++;
-        }
-        reader.close();
-
-        return todos;
     }
 }
