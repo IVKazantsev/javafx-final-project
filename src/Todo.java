@@ -40,6 +40,17 @@ public class Todo {
         m_completedAt = (completed) ? now : null;
     }
 
+    public Todo(int id, String title, boolean completed, Date createdAt, Date updatedAt, Date completedAt) throws Exception {
+        this.setTitle(title);
+
+        m_id = id;
+
+        m_createdAt = createdAt;
+        m_updatedAt = updatedAt;
+        m_completed = completed;
+        m_completedAt = completedAt;
+    }
+
     public void done() {
         Date now = new Date();
 

@@ -44,7 +44,7 @@ public class Repository {
         return null;
     }
 
-    public Todo[] getTodos(Date time) throws IOException {
+    public Todo[] getTodosByDay(Date time) throws IOException {
         Connection connection = getConnection();
 
         if (time == null) {
@@ -72,6 +72,36 @@ public class Repository {
 
             while (queryOutput.next()) {
                 todos.add(new Todo(queryOutput.getString("TITLE"), queryOutput.getBoolean("COMPLETED"), queryOutput.getInt("ID")));
+            }
+            connection.close();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        return todos.toArray(new Todo[0]);
+    }
+
+    public Todo[] getAllTodos() {
+        Connection connection = getConnection();
+
+        String query = "SELECT * FROM todos ORDER BY CREATED_AT";
+
+
+        List<Todo> todos = new ArrayList<>();
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+
+            ResultSet queryOutput = statement.executeQuery();
+
+            while (queryOutput.next()) {
+                todos.add(new Todo(queryOutput.getInt("ID"),
+                        queryOutput.getString("TITLE"),
+                        queryOutput.getBoolean("COMPLETED"),
+                        queryOutput.getDate("CREATED_AT"),
+                        queryOutput.getDate("UPDATED_AT"),
+                        queryOutput.getDate("COMPLETED_AT")
+                        ));
             }
             connection.close();
         } catch (Exception e) {
