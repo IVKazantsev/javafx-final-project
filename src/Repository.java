@@ -71,7 +71,9 @@ public class Repository {
             ResultSet queryOutput = statement.executeQuery();
 
             while (queryOutput.next()) {
-                todos.add(new Todo(queryOutput.getString("TITLE"), queryOutput.getBoolean("COMPLETED"), queryOutput.getInt("ID")));
+                todos.add(new Todo(queryOutput.getString("TITLE"),
+                        queryOutput.getBoolean("COMPLETED"),
+                        queryOutput.getInt("ID")));
             }
             connection.close();
         } catch (Exception e) {
@@ -120,7 +122,9 @@ public class Repository {
         String completed = (todo.isCompleted()) ? "Y" : "N";
         String createdAt = dateFormat.format(todo.getCreatedAt());
         String updatedAt = dateFormat.format(todo.getUpdatedAt());
-        String completedAt = (Objects.isNull(todo.getCompletedAt())) ? null : dateFormat.format(todo.getCompletedAt());
+        String completedAt = (Objects.isNull(todo.getCompletedAt()))
+                ? null
+                : dateFormat.format(todo.getCompletedAt());
 
         String query = "INSERT INTO todos (TITLE, COMPLETED, CREATED_AT, UPDATED_AT, COMPLETED_AT)" +
                 "VALUES (?, ?, ?, ?, ?)";
@@ -152,7 +156,9 @@ public class Repository {
 
         String completed = (todo.isCompleted()) ? "Y" : "N";
         String updatedAt = dateFormat.format(todo.getUpdatedAt());
-        String completedAt = (Objects.isNull(todo.getCompletedAt())) ? null : dateFormat.format(todo.getCompletedAt());
+        String completedAt = (Objects.isNull(todo.getCompletedAt()))
+                ? null
+                : dateFormat.format(todo.getCompletedAt());
 
         String query = "UPDATE todos SET COMPLETED = ?, UPDATED_AT = ?, COMPLETED_AT = ? " +
                 "WHERE ID = ?";

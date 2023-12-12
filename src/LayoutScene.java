@@ -194,7 +194,10 @@ public class LayoutScene {
 
                 try {
                     if (m_repository.getTodosByDay(null).length != 0) {
-                        todoCkeckBox.setLayoutY(todos.getChildren().get(m_repository.getTodosByDay(null).length - 1).getLayoutY() + 20);
+                        todoCkeckBox
+                                .setLayoutY(todos.getChildren()
+                                        .get(m_repository.getTodosByDay(null).length - 1)
+                                        .getLayoutY() + 20);
                     } else {
                         todos.getChildren().clear();
                     }
@@ -296,13 +299,20 @@ public class LayoutScene {
         Group content = new Group();
 
         VBox container = new VBox(10);
-        Label totalDaysLabel = new Label("Total days: " + totalDays);
-        Label totalTasksLabel = new Label("Total tasks: " + totalTaskCount);
-        Label totalCompletedTasksLabel = new Label("Total completed tasks: " + totalCompletedTaskCount);
-        Label minTasksInDayLabel = new Label("Min tasks in a day: " + minTaskCount);
-        Label maxTasksInDayLabel = new Label("Max tasks in a day: " + maxTaskCount);
-        Label averageTasksLabel = new Label("Average tasks in a day: " + averageTasksCount);
-        Label averageCompletedTasksLabel = new Label("Average completed tasks in a day: " + averageCompletedTasksCount);
+        Label totalDaysLabel = new Label("Total days: "
+                + totalDays);
+        Label totalTasksLabel = new Label("Total tasks: "
+                + totalTaskCount);
+        Label totalCompletedTasksLabel = new Label("Total completed tasks: "
+                + totalCompletedTaskCount);
+        Label minTasksInDayLabel = new Label("Min tasks in a day: "
+                + minTaskCount);
+        Label maxTasksInDayLabel = new Label("Max tasks in a day: "
+                + maxTaskCount);
+        Label averageTasksLabel = new Label("Average tasks in a day: "
+                + averageTasksCount);
+        Label averageCompletedTasksLabel = new Label("Average completed tasks in a day: "
+                + averageCompletedTasksCount);
 
         container.getChildren().addAll(totalDaysLabel,
                 totalTasksLabel,
