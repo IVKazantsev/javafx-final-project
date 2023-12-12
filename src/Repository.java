@@ -154,7 +154,7 @@ public class Repository {
         String updatedAt = dateFormat.format(todo.getUpdatedAt());
         String completedAt = (Objects.isNull(todo.getCompletedAt())) ? null : dateFormat.format(todo.getCompletedAt());
 
-        String query = "UPDATE todos SET COMPLETED = ?, UPDATED_AT = ?, COMPLETED_AT = ?" +
+        String query = "UPDATE todos SET COMPLETED = ?, UPDATED_AT = ?, COMPLETED_AT = ? " +
                 "WHERE ID = ?";
 
         try {
