@@ -25,8 +25,6 @@ public class AddTodoBox {
         TextField textField = new TextField();
         textField.setPromptText("What to do?");
 
-        System.out.println(textField.promptTextProperty());
-
         Button cancelButton = new Button("Cancel");
         Button saveButton = new Button("Add a task");
         Label emptyLabel = new Label();

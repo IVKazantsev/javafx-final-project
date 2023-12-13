@@ -125,7 +125,14 @@ public class LayoutScene {
         Group todos = new Group();
         Todo[] todosArray = m_repository.getTodosByDay(day);
 
+        if(day == null) {
+            day = new Date();
+        }
+        Label date = new Label(sdf.format(day));
+        todos.getChildren().add(date);
         Label nothingTodo = new Label("Nothing to do here");
+
+        nothingTodo.setLayoutY(20);
         if (todosArray.length == 0) {
             todos.getChildren().add(nothingTodo);
         }
@@ -137,7 +144,7 @@ public class LayoutScene {
                 todo.setDisable(true);
             }
             todos.getChildren().add(todo);
-            todo.setLayoutY(content.getLayoutY() + i * 20);
+            todo.setLayoutY(content.getLayoutY() + 20 + i * 20);
         }
 
 
@@ -199,7 +206,8 @@ public class LayoutScene {
                                         .get(m_repository.getTodosByDay(null).length - 1)
                                         .getLayoutY() + 20);
                     } else {
-                        todos.getChildren().clear();
+                        todos.getChildren().remove(1);
+                        todoCkeckBox.setLayoutY(20);
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
