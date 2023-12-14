@@ -25,7 +25,7 @@ public class Repository {
 
             reader.close();
 
-            String url = "jdbc:mysql://localhost/" + databaseName;
+            String url = "jdbc:mysql://localhost:3306/" + databaseName;
 
             try {
                 Class.forName("com.mysql.cj.jdbc.Driver");
@@ -103,7 +103,7 @@ public class Repository {
                         queryOutput.getDate("CREATED_AT"),
                         queryOutput.getDate("UPDATED_AT"),
                         queryOutput.getDate("COMPLETED_AT")
-                        ));
+                ));
             }
             connection.close();
         } catch (Exception e) {

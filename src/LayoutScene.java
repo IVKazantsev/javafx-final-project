@@ -4,8 +4,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -22,10 +21,11 @@ public class LayoutScene {
     public Scene display() throws IOException {
         /////////////// Заголовок ///////////////
 
-        Image icon = new Image("file:img/icon.png", 50, 50, true, true);
+        Image icon = new Image("file:img/icon.png", 100, 100, true, true);
         ImageView iconView = new ImageView(icon);
 
         Label name = new Label("Todoist");
+        name.setId("title");
 
         FlowPane title = new FlowPane(iconView, name);
 
@@ -35,6 +35,7 @@ public class LayoutScene {
         /////////////// Копирайт и навигация ///////////////
 
         Label copyright = new Label("© 2023 Todoist Kazancev Korol");
+        copyright.setId("copyright");
         // Переход по вкладкам
         Button minusDayButton = new Button("-1 day");
         Button plusDayButton = new Button("+1 day");
@@ -52,8 +53,8 @@ public class LayoutScene {
         FlowPane footer = new FlowPane();
         footer.getChildren().addAll(menu, copyright);
 
-        footer.setHgap(5);
-        footer.setVgap(10);
+        footer.setHgap(8);
+        footer.setVgap(20);
 
         /////////////// Контент ///////////////
 
@@ -61,13 +62,12 @@ public class LayoutScene {
         Calendar c = Calendar.getInstance();
         c.setTime(dayForTodo);
 
-
-        FlowPane content = new FlowPane();
-        content.setLayoutY(title.getLayoutY() + 80);
+        FlowPane content = new FlowPane(50, 50);
+        content.setLayoutY(title.getLayoutY() + 120);
 
         content.getChildren().add(todosPage(false, null));
 
-        footer.setLayoutY(350);
+        footer.setLayoutY(550);
 
         /////////////// Навигация ///////////////
 
@@ -91,6 +91,7 @@ public class LayoutScene {
         });
         todayTodosButton.setOnAction(actionEvent -> {
             content.getChildren().clear();
+            c.setTime(dayForTodo);
             try {
                 content.getChildren().add(todosPage(false, null));
             } catch (IOException e) {
@@ -113,45 +114,56 @@ public class LayoutScene {
         layout.setLayoutX(80);
 
 
+
         return new Scene(layout);
     }
 
     private Group todosPage(boolean isHistory, Date day) throws IOException {
 
+        ScrollPane todosPane = new ScrollPane();
+        todosPane.setMaxHeight(250);
+        todosPane.setPrefWidth(400);
+
         /////////////// Список дел ///////////////
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
         Group content = new Group();
+        content.setId("content");
         Group todos = new Group();
+        todos.setId("todos");
         Todo[] todosArray = m_repository.getTodosByDay(day);
 
         if(day == null) {
             day = new Date();
         }
         Label date = new Label(sdf.format(day));
-        todos.getChildren().add(date);
-        Label nothingTodo = new Label("Nothing to do here");
+        date.setId("date");
+        content.getChildren().add(date);
 
-        nothingTodo.setLayoutY(20);
+        Label nothingTodo = new Label("Nothing to do here");
+        nothingTodo.setId("nothingTodo");
         if (todosArray.length == 0) {
             todos.getChildren().add(nothingTodo);
         }
 
+        todosPane.setLayoutY(content.getLayoutY() + 40);
         for (int i = 0; i < todosArray.length; i++) {
             CheckBox todo = new CheckBox(todosArray[i].getTitle());
             todo.setSelected(todosArray[i].isCompleted());
+            todo.setId("todo");
             if (isHistory && !sdf.format(day).equals(sdf.format(new Date()))) {
                 todo.setDisable(true);
             }
             todos.getChildren().add(todo);
-            todo.setLayoutY(content.getLayoutY() + 20 + i * 20);
+            todo.setLayoutY(content.getLayoutY() + i * 25);
         }
 
 
         if (isHistory && !sdf.format(day).equals(sdf.format(new Date()))) {
-            content.getChildren().add(todos);
+            todosPane.setContent(todos);
+            content.getChildren().add(todosPane);
             return content;
         }
+
 
         /////////////// Добавление новой тудушки ///////////////
 
@@ -185,7 +197,8 @@ public class LayoutScene {
             }
         }
 
-        content.getChildren().addAll(todos, newTodoButton);
+        todosPane.setContent(todos);
+        content.getChildren().addAll(todosPane, newTodoButton);
         return content;
     }
 
@@ -196,28 +209,29 @@ public class LayoutScene {
             if (AddTodoBox.display("Adding a task")) {
                 Todo todo = AddTodoBox.todo;
 
-                CheckBox todoCkeckBox = new CheckBox(todo.getTitle());
-                todoCkeckBox.setSelected(todo.isCompleted());
+                CheckBox todoCheckBox = new CheckBox(todo.getTitle());
+                todoCheckBox.setSelected(todo.isCompleted());
 
                 try {
                     if (m_repository.getTodosByDay(null).length != 0) {
-                        todoCkeckBox
+                        todoCheckBox
                                 .setLayoutY(todos.getChildren()
                                         .get(m_repository.getTodosByDay(null).length - 1)
-                                        .getLayoutY() + 20);
+                                        .getLayoutY() + 25);
+
                     } else {
-                        todos.getChildren().remove(1);
-                        todoCkeckBox.setLayoutY(20);
+                        todos.getChildren().clear();
+                        todoCheckBox.setLayoutY(20);
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
 
                 m_repository.addTodo(todo);
-                todos.getChildren().add(todoCkeckBox);
+                todos.getChildren().add(todoCheckBox);
 
                 /////////////// Изменение галочки в чекбоксе для новой тудушки ///////////////
-                todoCkeckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                todoCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue) {
                         try {
                             Todo[] tempTodosArray = m_repository.getTodosByDay(null);
@@ -239,7 +253,7 @@ public class LayoutScene {
             }
         });
 
-        newTodoButton.setLayoutY(160);
+        newTodoButton.setLayoutY(290);
         return newTodoButton;
     }
 
@@ -299,6 +313,11 @@ public class LayoutScene {
             }
         }
 
+        if(minTaskCount == 100000)
+        {
+            minTaskCount = 0;
+        }
+
         if (totalDays != 0) {
             averageTasksCount = totalTaskCount / totalDays;
             averageCompletedTasksCount = totalCompletedTaskCount / totalDays;
@@ -307,6 +326,7 @@ public class LayoutScene {
         Group content = new Group();
 
         VBox container = new VBox(10);
+        container.setId("reporting");
         Label totalDaysLabel = new Label("Total days: "
                 + totalDays);
         Label totalTasksLabel = new Label("Total tasks: "
@@ -329,8 +349,9 @@ public class LayoutScene {
                 maxTasksInDayLabel,
                 averageTasksLabel,
                 averageCompletedTasksLabel);
-
         content.getChildren().add(container);
+
         return content;
     }
+
 }

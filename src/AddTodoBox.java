@@ -1,6 +1,7 @@
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.layout.VBox;
@@ -20,13 +21,19 @@ public class AddTodoBox {
         window.setTitle(title);
         window.setMinWidth(300);
         window.setMinHeight(100);
-
+        Image icon = new Image("file:img/icon.png", 100, 100, true, true);
+        window.getIcons().add(icon);
         Label label = new Label("Task name:");
+        label.setId("taskName");
+        label.getStylesheets().add("style.css");
         TextField textField = new TextField();
         textField.setPromptText("What to do?");
+        textField.getStylesheets().add("style.css");
 
         Button cancelButton = new Button("Cancel");
         Button saveButton = new Button("Add a task");
+        cancelButton.getStylesheets().add("style.css");
+        saveButton.getStylesheets().add("style.css");
         Label emptyLabel = new Label();
         emptyLabel.setTextFill(Color.rgb(255, 0, 0));
 
