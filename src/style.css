@@ -1,0 +1,66 @@
+
+#title{
+    -fx-font-size: 35px;
+    -fx-font-family: "Segoe UI Black";
+    -fx-font-weight: 700;
+}
+#nothingTodo, #taskName{
+    -fx-font-size: 20px;
+    -fx-font-family: "Segoe UI Black";
+}
+#content{
+    -fx-font-family: "Segoe UI Semibold";
+}
+
+#todos{
+    -fx-font-size: 15px;
+}
+#reporting, #date{
+    -fx-font-size: 20px;
+    -fx-font-family: "Segoe UI Black";
+}
+.button{
+    -fx-padding: 10px;
+    -fx-border-radius: 20;
+    -fx-border: 0;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 0, 5, 5, 5);
+    -fx-background-radius: 10;
+    -fx-background-color: #E04F5F;
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI Black";
+    -fx-font-size: 15px;
+}
+.button:hover{
+    -fx-background-color: #d2263a;
+}
+.button:focused{
+    -fx-background-color: #c90318;
+}
+.text-field{
+    -fx-font-family: "Segoe UI Semibold";
+}
+.text-field:focused {
+    -fx-border-color: #E04F5F;
+    -fx-border-width: 2;
+}
+
+
+#copyright{
+    -fx-font-size: 20px;
+    -fx-font-family: "Segoe UI Light";
+    -fx-text-fill: #A5A9A6;
+}
+
+.check-box .box {
+    -fx-background-color: white;
+    -fx-border-color:grey;
+    -fx-border-radius:3px;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: white;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #E04F5F;
+}
